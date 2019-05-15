@@ -1,0 +1,5 @@
+script s1
+rule1 
+	when user is ua1 in ua2 in policy Role
+	allow user "File read", "File write" 
+	on object attribute Loans in AllAccounts

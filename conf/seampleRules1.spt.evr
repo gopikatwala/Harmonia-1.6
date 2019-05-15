@@ -1,0 +1,9 @@
+script s1
+rule1 
+	allow user "File read", "File write" 
+	on object attribute ClientAccounts in AllAccounts
+	when user in Tellers in policy Role
+rule1 
+	allow user "File read", "File write" 
+	on object attribute Loans in AllAccounts
+	when user in LoanOfficers in policy Role
