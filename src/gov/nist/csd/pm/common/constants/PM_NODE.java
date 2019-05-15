@@ -1,7 +1,5 @@
 package gov.nist.csd.pm.common.constants;
 
-import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
-
 public enum PM_NODE {
 	USER		("u"),		
 	USERA		( "U"),
@@ -20,7 +18,8 @@ public enum PM_NODE {
 	CONNA		( "C"), // 0 Entries Found!!!
 	M_PREFIX	( "m"),
 	// A user attribute used in INTRASESSION deny constraints.
-	INTRA		( "ai");//,
+	INTRA		( "ai"),
+	OPERATION	( "op");//,
 	/*S_ASSOC		("so"),
 	S_OATTR 	("sb"),
 	S_POL 		("sp");*/

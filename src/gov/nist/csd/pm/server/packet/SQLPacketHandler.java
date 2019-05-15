@@ -702,6 +702,14 @@ public class SQLPacketHandler {
 			String sEntityType = cmdPacket.getStringValue(3);
 			return ServerConfig.SQLDAO.getEntityName(sSessId, sEntityId, sEntityType);
 			// Obligation commands - need to be activated when Obligation feature is turned on
+		} else if (sCmdCode.equalsIgnoreCase("generateXML")) {
+			if (cmdPacket.size() < 3) {
+				return failurePacket("Too few arguments!");
+			}
+			String sSessId = cmdPacket.getStringValue(1);
+			String sDeleteOthers = cmdPacket.getStringValue(2);
+				return ServerConfig.SQLDAO.generateXML(sSessId, sDeleteOthers, cmdPacket);
+
 		} else if (sCmdCode.equalsIgnoreCase("getScripts")) {
 				return ServerConfig.obligationDAO.getScripts();
 

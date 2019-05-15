@@ -11,6 +11,8 @@ import gov.nist.csd.pm.common.util.UtilMethods;
 import gov.nist.csd.pm.server.audit.Audit;
 import gov.nist.csd.pm.server.graph.*;
 import gov.nist.csd.pm.server.packet.SQLPacketHandler;
+import gov.nist.csd.pm.server.parser.RuleParser;
+import gov.nist.csd.pm.server.sptparser.SptRuleParser;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -8856,6 +8858,11 @@ public class CommonSQLDAO{
             params.addParam(ParamType.STRING, sName);
             ArrayList<ArrayList<Object>> results = select(GET_HOST_ID, params);
             return results.get(0).get(0).toString();
+        } else if (sType.equalsIgnoreCase(PM_OP)) {
+        	params = new MySQL_Parameters();
+            params.addParam(ParamType.STRING, sName);
+            ArrayList<ArrayList<Object>> results = select(GET_OP_ID, params);
+            return results.get(0).get(0).toString();
         }
         return sId;
     }
@@ -15991,6 +15998,64 @@ public class CommonSQLDAO{
             return false;
         }
         return true;
+    }
+
+    public Packet generateXML(String sSessId, String sDeleteOthers, Packet cmd) {
+        // Create a temporary file.
+        File ftemp = null;
+        SptRuleParser ruleParser;
+        String sResult;
+        // The rules start at item 3 (0 = cmd code, 1 = sess id, 2 =
+        // sDeleteOthers).
+        // Some items could be empty, the String used to extract them would be
+        // null,
+        // skip them.
+        try {
+            ftemp = File.createTempFile("spt", ".spt", null);
+            FileOutputStream fos = new FileOutputStream(ftemp);
+            PrintWriter pw = new PrintWriter(fos);
+
+            // Copy the lines to the temp file.
+            for (int i = 3; i < cmd.size(); i++) {
+                String sLine = cmd.getStringValue(i);
+                if (sLine == null) {
+                    continue;
+                }
+                pw.println(sLine);
+            }
+            pw.close();
+
+            // Create a new parser object and parse the script. Note that if
+            // parsing is successful, the script code should be stored somewhere.
+            // An
+            // object
+            // of class pmClassScript with the script's id and name is created.
+            // Other
+            // scripts stored in the AD might have the same name.
+            ruleParser = new SptRuleParser(ftemp);
+//            ruleParser.printTokens();
+            sResult = ruleParser.parse();
+            if (sResult != null) {
+            	return failurePacket(sResult);
+            } else {
+              return SQLPacketHandler.getSuccessPacket();
+            }
+        } catch (Exception e) {
+            if (ServerConfig.debugFlag) {
+                e.printStackTrace();
+            }
+            return failurePacket("Exception while writing the rules to a temporary file: "
+                    + e.getMessage());
+        }
+        // If the compilation failed, return failure.
+//        if (sResult != null) {
+//            System.out.println("Error during compilation:" + sResult);
+//            return failurePacket(sResult);
+//        } else {
+//            System.out.println("Successful compilation of script "
+//                    + ruleParser.getScriptName());
+//        }
+
     }
 
     class SimpleOattr {
